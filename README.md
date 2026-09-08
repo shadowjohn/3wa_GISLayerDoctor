@@ -8,8 +8,8 @@
 - Shapefile 依不分大小寫的同名檔分組，檢查 SHP/SHX/DBF，提示 PRJ 缺漏及配套重複。
 - accept 只作選檔提示；拖拉、貼上與選檔共用分類流程，類型不符仍列出提示。
 - 貼上需剪貼簿實際提供 File；純文字檔案路徑不會讀取本機檔案。資料夾請改選其中檔案。
-- WMTS 確認網址後，按開始解析才由瀏覽器 GET 讀取 GetCapabilities（不帶憑證），服務需允許 CORS；不請求圖磚。
-- 加入檔案先分類；按「開始解析」才在 Worker 讀取／解壓，完全不作上傳或 localStorage 儲存。
+- WMTS 確認網址後，按開始解析才由瀏覽器 GET 讀取 GetCapabilities（不帶憑證），服務需允許 CORS；解析成功後會自動套疊圖磚。
+- 加入檔案先分類；按「開始解析」才在 Worker 讀取／解壓，完全不作上傳或 localStorage 儲存。解析期間會顯示載入、逐檔解析與整理結果的進度。
 - 檔名與網址只以 textContent 顯示，不插入 HTML。副檔名分類不代表內容驗證。
 
 ## Shapefile 解析
@@ -45,7 +45,7 @@ WMTS 合法／非法網址、惡意檔名純文字顯示及手機寬度。
 ## 共用工具評估
 實際路徑為 /var/www/html/inc/javascript/include.js，由 head.php 自動載入。
 dialogMyBoxOn(message, isTouchOutSideClose, functionAction) 與 dialogMyBoxOff()
-可供第二階段解析進度使用；message 支援 HTML，未受信任的內容應先以 textContent 建立。
+本工具改用原生 progress 元素顯示解析進度；message 支援 HTML，未受信任的內容應先以 textContent 建立。
 head.php 的 jquery-form flag 載入 jquery.form.js，用於 AJAX 表單送出；
 本工具本機分類無此需求，因此不啟用。
 
@@ -73,7 +73,7 @@ tests/fixtures/sample.tif 是合成的 2×2 TIFF（像素 1–4、EPSG:4326）�
 
 ## 圖台
 使用站內 easymap7117 公開 addItem/removeItem 生命週期，解析後顯示向量、基本 DXF 幾何與 TIFF 灰階預覽。
-WMTS 圖層預設不勾選，勾選後由 SDK 依 capabilities 載入圖磚。
+WMTS 圖層解析成功後自動勾選並由 SDK 依 capabilities 載入圖磚。
 支援圖層開關、套圖後自動縮放至資料、點選向量屬性（純文字，最多 40 欄，每格 1000 字）。
 已知 CRS 使用來源宣告；缺少來源 CRS 的資料暫不套圖，仍顯示完整解析資訊與座標診斷。
 
@@ -81,7 +81,7 @@ WMTS 圖層預設不勾選，勾選後由 SDK 依 capabilities 載入圖磚。
 圖層名稱顯示預覽／完整筆數，metadata 與縮放範圍仍使用完整檔案。
 DXF 支援點、直線、不含 bulge 的多段線與 64 段近似圓弧；其餘實體會列出略過數量。
 GeoTIFF 第一波段灰階縮圖最長 512 像素，NoData 透明；以轉換後外框定位，非精密影像重投影。
-更換資料、重新解析與清空會移除舊圖層、清除點選內容並回收影像 Blob URL。
+更換資料、重新解析與清空會移除舊圖層、清除點選內容並回收影像 Blob URL；解析完成後不會改變頁面捲動位置。
 來源檔不上傳；底圖與 WMTS 圖磚會有正常網路請求。
 
 座標診斷區提供解析後 Extent、各軸範圍、外框中心（非幾何重心）、跨度與三筆不同座標樣本。
