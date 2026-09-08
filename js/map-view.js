@@ -1,13 +1,13 @@
 (() => {
   'use strict';
   const byId = id => document.getElementById(id);
-  let map = null, results = [], items = [];
+  let map = null, items = [];
   const status = message => { byId('map-status').textContent = message; };
   function clear() {
     for (const entry of items) { if (entry.item && entry.added) map.removeItem(entry.item); if (entry.url) URL.revokeObjectURL(entry.url); }
-    items = []; results = [];
+    items = [];
     byId('map-layers').replaceChildren(); byId('map-properties').replaceChildren();
-    byId('map-feature').hidden = true; byId('map-fit').disabled = true;
+    byId('map-feature').hidden = true;
     if (map) status('加入資料並解析後，圖層會顯示在這裡。');
   }
   function properties(record) {
@@ -34,7 +34,7 @@
     map._zoomByBoundary(boundary, { padding: [40, 40, 40, 40], maxZoom: 18 });
   }
   function show(layers) {
-    clear(); results = layers;
+    clear();
     if (!map) { status('圖台未載入，請重新整理重試。'); return; }
     const messages = [];
     for (const layer of layers) {
@@ -42,13 +42,12 @@
       if (!data) { messages.push(layer.name + '：目前沒有可顯示的幾何。'); continue; }
       try {
         let item, featureProperties = null, extent = null, blobUrl = null, labelText = layer.name, checked = true;
-        const crs = data.crs || byId('map-crs').value;
+        const crs = data.crs;
         if (data.kind === 'wmts') {
           item = new dgSource('WMTS', { name: 'doctor-wmts-' + items.length, url: data.url, capabilitiesUrl: data.url, layer: data.layer, bg: false });
-          checked = false;
-          labelText += ' · 勾選以載入圖磚';
+          labelText += ' · 已載入圖磚';
         } else {
-          if (!crs) { messages.push(layer.name + '：請指定來源座標系統。'); continue; }
+          if (!crs) { messages.push(layer.name + '：來源座標系統不明，暫不套圖；座標資訊請見解析說明。'); continue; }
           if (!ol.proj.get(crs)) throw new Error('圖台不支援 ' + crs);
           if (data.kind === 'image') {
             extent = ol.proj.transformExtent(data.bounds, crs, 'EPSG:4326');
@@ -56,9 +55,7 @@
             item = new dgStaticImage(blobUrl, new dgXY(extent[0], extent[3]), new dgXY(extent[2], extent[1]));
             labelText += ' · 第一波段灰階預覽';
           } else {
-            const collection = byId('map-smooth').checked
-              ? { type: 'FeatureCollection', features: LayerNormalizer.sampleMapFeatures(data.collection.features, 500, 20000) }
-              : data.collection;
+            const collection = data.collection;
             const features = new ol.format.GeoJSON().readFeatures(collection, { dataProjection: crs, featureProjection: 'EPSG:4326' });
             featureProperties = collection.features.map(feature => feature.properties);
             const wkt = new ol.format.WKT();
@@ -67,7 +64,7 @@
             extent = ol.proj.transformExtent(layer.bounds, crs, 'EPSG:4326');
             item = new dgWKT(records, 'EPSG:4326');
             labelText += ' · ' + features.length.toLocaleString() + ' / ' + data.total.toLocaleString() + ' 筆';
-            if (features.length < data.total) messages.push(layer.name + '：目前為抽樣預覽；取消「流暢預覽」可顯示更多圖徵。完整資訊請見解析結果。');
+            if (features.length < data.total) messages.push(layer.name + '：大型資料採抽樣預覽，完整資訊請見解析結果。');
           }
           if (!extent.every(Number.isFinite) || extent[0] < -180 || extent[2] > 180 || extent[1] < -90 || extent[3] > 90) {
             if (blobUrl) URL.revokeObjectURL(blobUrl);
@@ -94,14 +91,10 @@
         label.append(checkbox, text); byId('map-layers').append(label);
       } catch (error) { messages.push(layer.name + '：' + error.message); }
     }
-    byId('map-fit').disabled = !items.some(entry => entry.extent);
     fit();
     status(messages.join(' ') || (items.length ? '已準備 ' + items.length + ' 個圖層；可切換顯示，向量圖徵可點選查看屬性。' : '沒有可顯示的圖層。'));
   }
   window.GISMap = { clear, show };
-  byId('map-crs').addEventListener('change', () => show(results));
-  byId('map-fit').addEventListener('click', fit);
-  byId('map-smooth').addEventListener('change', () => show(results));
   try {
     map = window['map'] = new Easymap('map-view');
     map.zoomToXY(new dgXY(120.9, 23.7), 7);

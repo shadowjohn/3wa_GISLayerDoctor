@@ -8,6 +8,11 @@
   let wmts = '';
   let worker = null;
   let timeout = null;
+  function setProgress(value, text) {
+    $id('parse-progress').hidden = value == null;
+    if (value != null) $id('parse-progress-bar').value = value;
+    if (text) $id('parse-progress-text').textContent = text;
+  }
   function stopParsing() {
     if (worker) worker.terminate();
     worker = null;
@@ -15,6 +20,7 @@
     $id('parse-files').textContent = '開始解析';
     $id('cancel-parse').hidden = true;
     $id('parse-panel').setAttribute('aria-busy', 'false');
+    setProgress(null);
   }
   function resetResults() {
     stopParsing();
@@ -165,8 +171,13 @@
       updateParseButton();
       $id('parse-files').textContent = '解析中…';
       $id('cancel-parse').hidden = false;
+      setProgress(0, '準備解析…');
       say('正在瀏覽器中解析，請稍候…');
       worker.onmessage = ({ data }) => {
+        if (data.progress != null) {
+          setProgress(data.progress, data.message);
+          return;
+        }
         finish();
         for (const [index, row] of [...$id('file-list').rows].entries()) {
           if (selector.value === 'wmts' || selected.includes(files[index])) row.cells[3].textContent = '已執行，詳見解析結果';
@@ -232,7 +243,6 @@
         window.GISMap?.show(data.layers);
         data.errors.forEach(error => text($id('parse-results'), 'p', error).className = 'parse-error');
         say('解析完成：' + data.layers.length + ' 個圖層，' + data.errors.length + ' 個錯誤。');
-        $id('parse-panel').scrollIntoView({ block: 'start' });
       };
       worker.onerror = event => {
         event.preventDefault(); finish();

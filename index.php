@@ -73,26 +73,16 @@
       <button id="parse-files" type="button" disabled aria-describedby="parse-help">開始解析</button>
       <button id="cancel-parse" type="button" hidden>取消解析</button>
     </div>
+    <div id="parse-progress" hidden aria-live="polite">
+      <progress id="parse-progress-bar" max="100" value="0">0%</progress>
+      <span id="parse-progress-text">準備解析…</span>
+    </div>
     <p id="parse-help" class="note">加入所選類型的資料後按「開始解析」。WMTS 將連線讀取服務資訊；檔案仍只在本機處理。</p>
   </section>
   </div>
   <div class="results-column">
     <section id="map-panel" aria-labelledby="map-heading">
       <h2 id="map-heading">圖台</h2>
-      <div class="map-toolbar">
-        <label for="map-crs">未指定座標系統的資料</label>
-        <select id="map-crs">
-          <option value="">請指定來源座標系統</option>
-          <option value="EPSG:4326">WGS84 經緯度 (EPSG:4326)</option>
-          <option value="EPSG:3826">TWD97 / TM2 121 (EPSG:3826)</option>
-          <option value="EPSG:3825">TWD97 / TM2 119 (EPSG:3825)</option>
-          <option value="EPSG:3827">TWD67 / TM2 119 (EPSG:3827)</option>
-          <option value="EPSG:3828">TWD67 / TM2 121 (EPSG:3828)</option>
-          <option value="EPSG:3857">Web Mercator (EPSG:3857)</option>
-        </select>
-        <label><input id="map-smooth" type="checkbox" checked> 流暢預覽（大型圖層抽樣）</label>
-        <button id="map-fit" type="button" disabled>縮放至資料</button>
-      </div>
       <div id="map-view" aria-label="GIS 圖層預覽地圖"></div>
       <p id="map-status" role="status">正在載入圖台…</p>
       <div id="map-layers" aria-label="圖層開關"></div>
@@ -110,7 +100,6 @@
   </div>
 </main>
 <script src="js/file-classifier.js?v=<?=$asset_version;?>"></script>
-<script src="js/layer-normalizer.js?v=<?=$asset_version;?>"></script>
 <script src="js/map-view.js?v=<?=$asset_version;?>"></script>
 <script src="js/coordinate-info.js?v=<?=$asset_version;?>"></script>
 <script src="js/app.js?v=<?=$asset_version;?>"></script>

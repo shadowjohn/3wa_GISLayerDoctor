@@ -39,6 +39,8 @@ body#thebody:has(#gis-doctor) { height: auto; min-height: 100vh; overflow-wrap: 
 #gis-doctor input::file-selector-button { background: #2c4435; color: #e6eee8; border: 1px solid #687e6e; border-radius: 4px; padding: 5px 12px; margin-right: 12px; cursor: pointer; }
 #gis-doctor button:not(:disabled):hover { background: #2d806e; }
 #gis-doctor .parse-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+#parse-progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #afbeb3; font-size: 14px; }
+#parse-progress-bar { width: 180px; accent-color: #79cfa8; }
 #parse-results article { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #35453a; }
 #parse-results h3 { font-size: 20px; overflow-wrap: anywhere; }
 #parse-results p, #parse-results td { overflow-wrap: anywhere; }
@@ -76,9 +78,6 @@ body#thebody:has(#gis-doctor) { height: auto; min-height: 100vh; overflow-wrap: 
 #gis-doctor #parse-results h3 { margin: 16px 0 12px; }
 #gis-doctor #parse-results p { margin-bottom: 12px; }
 #gis-doctor #map-view { display: block; height: 480px; min-height: 0; padding: 0; text-align: initial; overflow: hidden; color: #253941; }
-#gis-doctor .map-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
-#gis-doctor .map-toolbar label { width: 100%; margin: 0; font-size: 14px; }
-#gis-doctor .map-toolbar select { flex: 1; min-width: 200px; }
 #map-status { margin-top: 12px; color: #afbeb3; font-size: 14px; }
 #gis-doctor #map-layers label { display: flex; gap: 10px; align-items: center; }
 #gis-doctor #map-layers input { width: auto; }
@@ -93,5 +92,3 @@ body#thebody:has(#gis-doctor) { height: auto; min-height: 100vh; overflow-wrap: 
 #gis-doctor .coordinate-info dd { margin: 0; font-family: ui-monospace, monospace; overflow-wrap: anywhere; user-select: text; }
 #gis-doctor .coordinate-info pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #e6eee8; max-height: 180px; overflow: auto; }
 @media (max-width: 600px) { #gis-doctor .coordinate-info dl { grid-template-columns: minmax(0, 1fr); } }
-
-#gis-doctor .map-toolbar #map-smooth { width: auto; margin-right: 6px; }
