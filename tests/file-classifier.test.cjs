@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const { classify } = require('../js/file-classifier.js');
+const file = (name, size = 10) => ({ name, size });
+let result = classify(['Road.SHP', 'road.shx', 'road.dbf'].map(name => file(name)), 'shapefile');
+assert.equal(result.groups.length, 1);
+assert.deepEqual(result.groups[0].missing, []);
+assert.equal(result.groups[0].hasProjection, false);
+result = classify([file('a.shp'), file('b.dbf'), file('a.zip'), file('bad.exe'), file('x.kml'), file('empty.shp', 0)], 'shapefile');
+assert.deepEqual(result.groups[0].missing, ['shx', 'dbf']);
+assert.equal(result.rows[2].status, '壓縮檔，待解析內容');
+assert.equal(result.rows[3].status, '不支援的副檔名');
+assert.equal(result.rows[4].status, '與所選類型不符');
+assert.equal(result.rows[5].status, '空檔案');
+assert.equal(classify([file('<img onerror=alert(1)>.kml')], 'kml').rows[0].file.name, '<img onerror=alert(1)>.kml');
+assert.deepEqual(classify([file('a.shp'), file('A.SHP')], 'shapefile').groups[0].duplicates, ['shp']);
+assert.equal(classify([file('toString')], 'shapefile').rows[0].type, 'unknown');
+assert.equal(classify([], 'wmts').rows.length, 0);
+console.log('FileSetClassifier checks passed');

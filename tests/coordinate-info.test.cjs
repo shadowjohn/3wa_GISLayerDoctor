@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const { describe } = require('../js/coordinate-info.js');
+const tm2 = describe([238014.070651,2733992.934029,253321.056163,2749263.999039]);
+assert.match(tm2.hint,/臺灣 TM2/);
+assert.match(tm2.hint,/無法據此區分/);
+assert.deepEqual(describe([120,24,122,26]).center,[121,25]);
+assert.deepEqual(describe([120,24,122,26]).span,[2,2]);
+assert.match(describe([120,24,122,26]).hint,/不能只憑數值確認/);
+assert.match(describe([13400000,2700000,13500000,2800000]).hint,/Web Mercator/);
+assert.equal(describe([Infinity,0,1,1]),null);
+assert.equal(describe([2,0,1,1]),null);
+assert.equal(describe(null),null);
+console.log('Coordinate extent and cautious CRS hints passed');
