@@ -14,7 +14,7 @@ vm.runInThisContext(fs.readFileSync('/var/www/html/inc/javascript/shapefilejs/dx
 const file = (name, data) => Object.assign(new Blob([data]), { name });
 const kml = '<kml xmlns="http://www.opengis.net/kml/2.2"><Placemark><name>中文</name><Point><coordinates>121,25</coordinates></Point></Placemark></kml>';
 const gpx = '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><wpt lat="25" lon="121"><name>中文</name></wpt></gpx>';
-const dxf = '0\nSECTION\n2\nENTITIES\n0\nLINE\n8\n道路\n10\n120\n20\n24\n11\n121\n21\n25\n0\nENDSEC\n0\nEOF\n'.replaceAll('\\n','\n');
+const dxf = '0\nSECTION\n2\nBLOCKS\n0\nBLOCK\n2\nARC_BLOCK\n10\n0\n20\n0\n0\nLWPOLYLINE\n90\n2\n10\n0\n20\n0\n42\n1\n10\n10\n20\n0\n0\nENDBLK\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n0\nINSERT\n2\nARC_BLOCK\n10\n120\n20\n24\n41\n2\n42\n2\n50\n90\n70\n2\n71\n2\n44\n20\n45\n30\n0\nENDSEC\n0\nEOF\n'.replaceAll('\\n','\n');
 (async () => {
  const result = parseGeoJSON({type:'Feature',geometry:{type:'Point',coordinates:[121,25]},properties:{name:'<img onerror=1>'}},'point',[]);
  assert.deepEqual(result.bounds,[121,25,121,25]);
@@ -35,7 +35,14 @@ const dxf = '0\nSECTION\n2\nENTITIES\n0\nLINE\n8\n道路\n10\n120\n20\n24\n11\n1
  const zip = new JSZip(); zip.file('doc.kml', kml);
  assert.equal((await parseKML(file('test.kmz',await zip.generateAsync({type:'uint8array'})),'auto'))[0].count,1);
  assert.equal((await parseGPX(file('test.gpx',gpx),'auto')).count,1);
- assert.equal((await parseDXF(file('test.dxf',dxf),'auto')).count,1);
+ global.includeMap = true;
+ const parsedDxf = await parseDXF(file('test.dxf',dxf),'auto');
+ assert.equal(parsedDxf.count,1);
+ assert.equal(parsedDxf.mapData.collection.features.length,4);
+ assert.deepEqual(parsedDxf.bounds,[120,24,150,74]);
+ assert.ok(parsedDxf.mapData.collection.features.every(feature => feature.geometry.coordinates.length > 2));
+ assert.match(parsedDxf.details.at(-1),/展開 INSERT：4 次/);
+ global.includeMap = false;
  const raster = await parseGeoTIFF(file('sample.tif', fs.readFileSync(path.join(__dirname,'fixtures/sample.tif'))));
  assert.deepEqual(raster.bounds,[120,23,122,25]);
  assert.equal(raster.preview[0][3],'1');

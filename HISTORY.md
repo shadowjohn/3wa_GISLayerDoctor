@@ -22,3 +22,7 @@
 - WMTS 解析成功後改為自動勾選、直接套疊圖磚，圖層開關仍可停用。
 - 解析完成後不再自動捲動頁面。
 - Worker 回報載入、逐檔解析與整理結果階段；介面加入可取消的原生解析進度條。
+- 圖台改為完整保留圖徵，依 250 筆或 25000 個座標點分批加入 Easymap，圖層名稱顯示逐批繪製進度。
+- DXF 圖台新增 LWPOLYLINE/POLYLINE bulge 圓弧、BLOCK／INSERT 展開，支援插入點、縮放、旋轉及列／欄陣列；遞迴或過深 BLOCK 明確略過。
+- 單批上傳檔案上限由 50 MB 放寬為 100 MB。
+- 文字編碼下新增資料來源 CRS 選擇：僅 Shapefile、DXF、GeoJSON、GPX、GeoTIFF 顯示，預設 WGS84 EPSG:4326，提供自動、DMS、DM、臺灣 TM2、Web Mercator 與隱藏的臺電圖號選項；EPSG 值僅補足未宣告 CRS 的資料。

@@ -39,6 +39,7 @@ body#thebody:has(#gis-doctor) { height: auto; min-height: 100vh; overflow-wrap: 
 #gis-doctor input::file-selector-button { background: #2c4435; color: #e6eee8; border: 1px solid #687e6e; border-radius: 4px; padding: 5px 12px; margin-right: 12px; cursor: pointer; }
 #gis-doctor button:not(:disabled):hover { background: #2d806e; }
 #gis-doctor .parse-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+#gis-doctor .source-crs-control { margin-top: 20px; }
 #parse-progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #afbeb3; font-size: 14px; }
 #parse-progress-bar { width: 180px; accent-color: #79cfa8; }
 #parse-results article { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #35453a; }

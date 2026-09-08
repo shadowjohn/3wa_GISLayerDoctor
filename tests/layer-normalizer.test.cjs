@@ -18,20 +18,8 @@ const large = summarize({ type: 'FeatureCollection', features: Array.from({lengt
   type:'Feature', geometry:{type:'Point',coordinates:[120+i/100000,25]}, properties:{name:'<img onerror=1>'}
 })) }, 'large', []);
 assert.equal(large.count,10001);
-assert.ok(large.mapData.collection.features.length <= 5000);
+assert.equal(large.mapData.collection.features.length,10001);
 assert.equal(large.mapData.total,10001);
 assert.equal(large.mapData.collection.features[0].properties.name,'<img onerror=1>');
 global.includeMap = false;
-console.log('Bounded map preview checks passed');
-
-const { sampleMapFeatures } = require('../js/layer-normalizer.js');
-const features = Array.from({length:3271}, (_,i) => ({
-  type:'Feature', geometry:{type:'LineString',coordinates:Array.from({length:50},()=>[121,25])}, properties:{id:i}
-}));
-const sampled = sampleMapFeatures(features, 500, 20000);
-assert.equal(sampled.length,400); // Vertex budget takes precedence over feature budget.
-assert.equal(sampled[1],features[7]); // Keep properties attached to the sampled geometry.
-assert.equal(features.length,3271);
-assert.deepEqual(sampleMapFeatures([],500,20000),[]);
-assert.deepEqual(sampleMapFeatures([{geometry:{type:'GeometryCollection',geometries:[features[0].geometry]}}],500,49),[]);
-console.log('Smooth map preview checks passed');
+console.log('Full map data checks passed');

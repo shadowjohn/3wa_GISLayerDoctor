@@ -88,6 +88,7 @@
     input.value = '';
     const isWmts = selector.value === 'wmts';
     document.querySelector('.encoding-control').hidden = isWmts || selector.value === 'geotiff';
+    document.querySelector('.source-crs-control').hidden = !['shapefile', 'dxf', 'geojson', 'gpx', 'geotiff'].includes(selector.value);
     $id('source-panel').hidden = !selector.value;
     $("input[reqc='upfiles']").prop('type', isWmts || !selector.value ? 'text' : 'file');
     input.multiple = !isWmts;
@@ -153,6 +154,9 @@
   $id('dbf-encoding').addEventListener('change', () => {
     resetResults(); updateParseButton(); say('編碼設定已變更，請按開始解析以套用。');
   });
+  $id('source-crs').addEventListener('change', () => {
+    resetResults(); updateParseButton(); say('資料來源座標系統已變更，請按開始解析以套用。');
+  });
   $id('cancel-parse').addEventListener('click', () => {
     stopParsing(); updateParseButton(); say('已取消解析，檔案仍保留在清單。');
   });
@@ -160,8 +164,8 @@
     if (worker || $id('parse-files').disabled) return;
     resetResults();
     const selected = FileSetClassifier.classify(files, selector.value).rows.filter(row => row.type === selector.value).map(row => row.file);
-    if (selected.reduce((sum, file) => sum + file.size, 0) > 50 * 1024 * 1024) {
-      say('每批最多 50 MB，請拆分後再解析。'); return;
+    if (selected.reduce((sum, file) => sum + file.size, 0) > 100 * 1024 * 1024) {
+      say('每批最多 100 MB，請拆分後再解析。'); return;
     }
     $id('parse-panel').hidden = false;
     $id('parse-panel').setAttribute('aria-busy', 'true');
@@ -214,7 +218,7 @@
               text(details, 'pre', layer.sourceCRS);
               panel.append(details);
             }
-            text(panel, 'p', '以上座標不受圖台手動選擇的 CRS 影響；候選提示不會自動套用。').className = 'note';
+            text(panel, 'p', '座標診斷保留解析來源數值；若手動指定來源 CRS，圖台會採用該值轉換。').className = 'note';
             block.append(panel);
           }
           for (const detail of layer.details || []) text(block, 'p', detail);
@@ -251,7 +255,7 @@
       timeout = setTimeout(() => {
         finish(); say('解析超過 30 秒已停止，請拆分檔案再試。');
       }, 30000);
-      worker.postMessage({ includeMap: true, type: selector.value, files: selected, url: wmts, encoding: $id('dbf-encoding').value });
+      worker.postMessage({ includeMap: true, type: selector.value, files: selected, url: wmts, encoding: $id('dbf-encoding').value, sourceCRS: $id('source-crs').value });
     } catch (error) {
       finish(); say('無法啟動解析器：' + error.message);
     }

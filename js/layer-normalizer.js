@@ -1,21 +1,5 @@
 (function (root) {
   'use strict';
-  // ponytail: bounded preview; use tiled rendering when all large geometries must stay interactive.
-  function sampleMapFeatures(features, maxFeatures = 5000, maxVertices = 200000) {
-    const mapFeatures = [];
-    let vertices = 0;
-    const step = Math.max(1, Math.ceil(features.length / maxFeatures));
-    const countVertices = value => !Array.isArray(value) ? 0 : typeof value[0] === 'number' ? 1 : value.reduce((sum, item) => sum + countVertices(item), 0);
-    const geometryVertices = g => !g ? 0 : g.type === 'GeometryCollection' ? g.geometries.reduce((sum, item) => sum + geometryVertices(item), 0) : countVertices(g.coordinates);
-    for (let i = 0; i < features.length; i += step) {
-      const feature = features[i];
-      const count = geometryVertices(feature.geometry);
-      if (!count || vertices + count > maxVertices) continue;
-      vertices += count;
-      mapFeatures.push(feature);
-    }
-    return mapFeatures;
-  }
   function summarize(collection, name, warnings) {
     if (collection?.type !== 'FeatureCollection' || !Array.isArray(collection.features)) {
       throw new Error('解析結果不是有效的 FeatureCollection');
@@ -49,7 +33,9 @@
     }
     // ponytail: preview only 5 rows × 20 fields; add paging when full attribute browsing is needed.
     const previewFields = [...fields].slice(0, 20);
-    const mapFeatures = root.includeMap ? sampleMapFeatures(collection.features) : [];
+    // Keep every geometry for the map.  map-view.js adds them in small layers so a large
+    // source can render progressively without dropping valid features.
+    const mapFeatures = root.includeMap ? collection.features : [];
     return {
       mapData: root.includeMap ? { kind: 'vector', crs: null, collection: { type: 'FeatureCollection', features: mapFeatures }, total: collection.features.length } : null,
       name, count: collection.features.length, types: [...types], bounds, coordinateSamples,
@@ -58,6 +44,6 @@
         previewFields.map(field => (typeof feature.properties?.[field] === 'object' && feature.properties[field] !== null ? JSON.stringify(feature.properties[field]) : String(feature.properties?.[field] ?? '')).slice(0, 500)))
     };
   }
-  root.LayerNormalizer = { summarize, sampleMapFeatures };
+  root.LayerNormalizer = { summarize };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.LayerNormalizer;
 })(globalThis);

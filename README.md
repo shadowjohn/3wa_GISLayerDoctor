@@ -16,18 +16,19 @@
 清單下方按「開始解析」，支援 ZIP 多圖層與分開的同名配套檔。
 使用專案內固定版本 [shpjs 6.2.0](https://github.com/calvinmetcalf/shapefile-js)
 及站內 JSZip 3.10.1；解析器在 Worker 執行，可取消，30 秒超時終止。
-每批來源上限 50 MB、解壓後配套檔上限 100 MB、每個 ZIP 最多 2000 項。
+每批來源上限 100 MB、解壓後配套檔上限 100 MB、每個 ZIP 最多 2000 項。
 ZIP 大小預檢依 JSZip 的 _data.uncompressedSize；升級 JSZip 需重驗 ZIP 路徑。
 同一圖層的錯誤會列出，其他可解析圖層仍顯示；ZIP 損壞或超限會停止整批。
 顯示圖徵數、幾何類型、座標範圍、欄位數及最多 5 筆 × 20 欄屬性，每格最多 500 字。
 有 PRJ 時轉為 WGS84；缺少 PRJ 時明確標示原始座標未確認。DBF 缺漏亦提示。
 DBF 編碼：手動設定優先，其次 .cpg；無 .cpg 時抽樣最多 256 筆文字欄位，嚴格檢查 UTF-8，再檢查 Big5。
 自動判斷屬推測：純 ASCII、雙方皆有效或混合編碼不能保證辨識，介面會提供判斷來源與手動切換。
+「資料來源座標系統」只在 Shapefile、DXF、GeoJSON、GPX、GeoTIFF 顯示，預設為 WGS84 EPSG:4326，可改選自動、DMS、DM、EPSG:3825、3826、3827、3828、3857。EPSG 手動值只補足未宣告 CRS 的資料，例如缺 PRJ 的 SHP 或 DXF；已有可靠來源宣告的資料維持自動判讀。DMS、DM 與臺電圖號文字座標尚無可安全通用的轉換規則。
 屬性預覽採不斷行欄位、橫向捲動與固定表頭，避免大量欄位擠成直排。
 加入檔案、切換類型或清空會終止舊工作並清除舊結果。
 
 ## 後續
-後續可擴充完整大量資料渲染、DXF BLOCK/INSERT/bulge，以及 GeoTIFF 精密影像重投影。
+後續可擴充 GeoTIFF 精密影像重投影，以及 DXF 文字、HATCH、SPLINE 等其他實體。
 
 ## 驗證
 ```sh
@@ -55,11 +56,11 @@ head.php 的 jquery-form flag 載入 jquery.form.js，用於 AJAX 表單送出�
 | GeoJSON | FeatureCollection、Feature、幾何物件；座標結構檢查、筆數、範圍及屬性 |
 | KML / KMZ | 使用 togeojson 轉換圖徵；KMZ 支援多個 KML，不讀取外部 NetworkLink、圖片 |
 | GPX | 航點、路線、軌跡與屬性 |
-| DXF | 文字 DXF 的版本、單位代碼、實體類型與數量、圖層／文字等實體預覽；二進位 DXF 不支援，尚未展開曲線或 BLOCK/INSERT |
+| DXF | 文字 DXF 的版本、單位代碼、實體類型與數量、圖層／文字等實體預覽；支援 POINT、LINE、LWPOLYLINE/POLYLINE（含 bulge）、CIRCLE/ARC 與 BLOCK/INSERT 展開。二進位 DXF、文字、HATCH、SPLINE 尚不支援圖台預覽 |
 | GeoTIFF | 第一個 IFD 的尺寸、波段、CRS、NoData、範圍及左上第一波段最多 5 個像素；超過 1600 萬像素僅顯示 metadata |
 | WMTS | GetCapabilities 圖層識別碼、格式、樣式與 TileMatrixSet；保留服務提供的 capabilities URL，有 KVP service/request 參數時補正為 GetCapabilities |
 
-每批檔案 50 MB、Worker 30 秒超時，可取消；KMZ 解壓 KML 合計上限 100 MB、最多 2000 個項目。
+每批檔案 100 MB、Worker 30 秒超時，可取消；KMZ 解壓 KML 合計上限 100 MB、最多 2000 個項目。
 WMTS 回應上限 5 MB，XML 拒絕 DTD/ENTITY。其他檔案逐一解析，單檔錯誤不阻擋同批其他檔案。
 文字檔自動嚴格嘗試 UTF-8，再嘗試 Big5；可手動切換。JSON 巢狀屬性以 JSON 文字預覽。
 單位與 CRS 僅顯示來源資訊，不擅自假設 CAD 或 TIFF 是經緯度。
@@ -76,10 +77,10 @@ tests/fixtures/sample.tif 是合成的 2×2 TIFF（像素 1–4、EPSG:4326）�
 WMTS 圖層解析成功後自動勾選並由 SDK 依 capabilities 載入圖磚。
 支援圖層開關、套圖後自動縮放至資料、點選向量屬性（純文字，最多 40 欄，每格 1000 字）。
 已知 CRS 使用來源宣告；缺少來源 CRS 的資料暫不套圖，仍顯示完整解析資訊與座標診斷。
+缺少來源 CRS 時，可在左側文字編碼下方指定資料來源座標系統後重新解析，圖台才會依該值轉換。
 
-圖台是有界預覽：每圖層最多 5000 筆、200000 個座標點，過大的單一圖徵會略過。
-圖層名稱顯示預覽／完整筆數，metadata 與縮放範圍仍使用完整檔案。
-DXF 支援點、直線、不含 bulge 的多段線與 64 段近似圓弧；其餘實體會列出略過數量。
+圖台會完整保留所有有效圖徵，並以每批最多 250 筆或 25000 個座標點逐批加入；圖層名稱會顯示目前已繪製／完整筆數。這避免一次建立大量 WKT 阻塞操作，仍可能受瀏覽器與資料複雜度影響。
+DXF 圖台支援 POINT、LINE、LWPOLYLINE/POLYLINE（含 bulge 圓弧）、CIRCLE、ARC 與 BLOCK/INSERT；INSERT 會套用插入點、縮放、旋轉及列／欄陣列。遞迴或超過 16 層的 BLOCK 會略過並列出警告。
 GeoTIFF 第一波段灰階縮圖最長 512 像素，NoData 透明；以轉換後外框定位，非精密影像重投影。
 更換資料、重新解析與清空會移除舊圖層、清除點選內容並回收影像 Blob URL；解析完成後不會改變頁面捲動位置。
 來源檔不上傳；底圖與 WMTS 圖磚會有正常網路請求。

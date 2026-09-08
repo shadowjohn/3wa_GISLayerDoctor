@@ -69,6 +69,22 @@
       </select>
       <p id="encoding-help" class="note">若中文亂碼，可切換編碼再按開始解析。</p>
     </div>
+    <div class="source-crs-control">
+      <label for="source-crs">資料來源座標系統</label>
+      <select id="source-crs" aria-describedby="source-crs-help">
+        <option value="auto">自動</option>
+        <option value="EPSG:4326" selected>WGS84 EPSG:4326（經緯度小數）</option>
+        <option value="度分秒">度分秒 DMS（如 120°16'54.5&quot;E 23°07'03.5&quot;N）</option>
+        <option value="度分">度分 DM（如 120°58.9215E 23°58.4325N）</option>
+        <option value="EPSG:3825">TWD97 澎湖119（EPSG:3825）</option>
+        <option value="EPSG:3826">TWD97 臺灣121（EPSG:3826）</option>
+        <option value="EPSG:3827">TWD67 澎湖119（EPSG:3827）</option>
+        <option value="EPSG:3828">TWD67 臺灣121（EPSG:3828）</option>
+        <option value="EPSG:3857">Web Mercator（EPSG:3857 / 900913）</option>
+        <option value="臺灣電力坐標" style="display:none;">臺灣電力圖號坐標（如 C6741 DC61）</option>
+      </select>
+      <p id="source-crs-help" class="note">自動會採用檔案宣告；手動選擇只套用到未宣告來源座標系統的資料。</p>
+    </div>
     <div class="parse-actions">
       <button id="parse-files" type="button" disabled aria-describedby="parse-help">開始解析</button>
       <button id="cancel-parse" type="button" hidden>取消解析</button>
