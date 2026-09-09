@@ -7,10 +7,11 @@
     return hash_file('sha256', $file);
   }, $asset_files))), 0, 16);
   $include_mode="bootstrap5|easymap7117";
+  $HEAD_TITLE=__('GIS 資料健檢機｜Shapefile、DXF、KML、GeoJSON 圖層檢核 - 3WA問題解決專家工作室');
+  $HEAD_DESCRIPTION=__('支援 Shapefile、DXF、KML、GeoJSON、GPX、GeoTIFF、WMTS 的瀏覽器端 GIS 資料解析、座標檢核、屬性預覽與圖台套疊。');
   require "{$base_dir}/html.php";
   require "{$base_dir}/head.php";
 ?>
-<title>GIS <?=__('資料健檢機');?> - <?=__('歡迎來到3WA問題解決專家工作室');?></title>
 <?php
   require "{$base_dir}/head_end.php";
   require "{$base_dir}/body.php";
@@ -19,7 +20,7 @@
 <link rel="stylesheet" href="css/gis-layer-doctor.css?v=<?=$asset_version;?>">
 <main id="gis-doctor" data-asset-version="<?=$asset_version;?>">
   <header><h1>GIS 資料健檢機</h1><p>先整理資料，再認識你的圖層。</p></header>
-  <p class="privacy">檔案只在您的瀏覽器處理，不會上傳至伺服器。</p>
+  <p class="privacy">可選擇、拖拉或貼上各種 GIS 資料，在瀏覽器直接解析、檢核，並套疊到圖台檢視。</p>
   <div class="doctor-workspace">
   <div class="source-column">
   <section aria-labelledby="type-heading">
@@ -114,6 +115,19 @@
     </section>
   </div>
   </div>
+  <section class="format-guide" aria-labelledby="format-guide-heading">
+    <h2 id="format-guide-heading">支援的 GIS 資料格式與檢核方式</h2>
+    <p>選擇資料類型後，可直接加入檔案或 WMTS 網址。工具會在瀏覽器解析資料、整理座標與屬性資訊，並將可辨識座標系統的圖層套疊到圖台。</p>
+    <div class="format-guide-grid">
+      <article><h3>Shapefile（SHP）</h3><p>可加入 ZIP，或分別加入同名的 SHP、SHX、DBF、PRJ、CPG 檔案。檢查配套是否齊全、DBF 文字編碼、圖徵數量、座標範圍與屬性欄位。</p></article>
+      <article><h3>DXF</h3><p>解析文字 DXF 的圖層、實體與單位資訊，支援點、線、多段線、bulge 圓弧、CIRCLE、ARC 與 BLOCK／INSERT 展開，適合檢視 CAD 圖資範圍。</p></article>
+      <article><h3>KML／KMZ</h3><p>讀取 KML 地標、路線與面資料；KMZ 會解開其中的 KML。檢查經緯度範圍與屬性，座標正常時可直接套疊圖台。</p></article>
+      <article><h3>GeoJSON</h3><p>支援 FeatureCollection、Feature 與各種標準幾何。檢查座標結構、幾何類型、Extent 與屬性，適合交換與 API 下載的 GIS 資料。</p></article>
+      <article><h3>GPX</h3><p>解析航點、路線與軌跡，整理位置與屬性資訊，方便檢視 GPS 紀錄的空間範圍並套疊到圖台。</p></article>
+      <article><h3>GeoTIFF</h3><p>讀取第一張影像的尺寸、波段、NoData、地理參考與範圍；可建立第一波段灰階預覽，協助確認遙測或網格資料的位置。</p></article>
+      <article><h3>WMTS</h3><p>輸入 GetCapabilities 網址後讀取服務圖層、格式與 TileMatrixSet。解析成功會自動載入圖磚，可與其他 GIS 向量資料套疊檢視。</p></article>
+    </div>
+  </section>
 </main>
 <script src="js/file-classifier.js?v=<?=$asset_version;?>"></script>
 <script src="js/map-view.js?v=<?=$asset_version;?>"></script>

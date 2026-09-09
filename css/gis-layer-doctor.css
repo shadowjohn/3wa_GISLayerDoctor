@@ -93,3 +93,9 @@ body#thebody:has(#gis-doctor) { height: auto; min-height: 100vh; overflow-wrap: 
 #gis-doctor .coordinate-info dd { margin: 0; font-family: ui-monospace, monospace; overflow-wrap: anywhere; user-select: text; }
 #gis-doctor .coordinate-info pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #e6eee8; max-height: 180px; overflow: auto; }
 @media (max-width: 600px) { #gis-doctor .coordinate-info dl { grid-template-columns: minmax(0, 1fr); } }
+#gis-doctor .format-guide { margin-top: 32px; }
+#gis-doctor .format-guide > p { color: #afbeb3; max-width: 900px; }
+#gis-doctor .format-guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+#gis-doctor .format-guide article { padding: 16px; border: 1px solid #35453a; border-radius: 8px; background: #15231a; }
+#gis-doctor .format-guide h3 { margin: 0 0 8px; font-size: 17px; color: #8dd8b6; }
+#gis-doctor .format-guide article p { margin: 0; font-size: 14px; color: #c8d4cb; }

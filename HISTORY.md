@@ -26,3 +26,4 @@
 - DXF 圖台新增 LWPOLYLINE/POLYLINE bulge 圓弧、BLOCK／INSERT 展開，支援插入點、縮放、旋轉及列／欄陣列；遞迴或過深 BLOCK 明確略過。
 - 單批上傳檔案上限由 50 MB 放寬為 100 MB。
 - 文字編碼下新增資料來源 CRS 選擇：僅 Shapefile、DXF、GeoJSON、GPX、GeoTIFF 顯示，預設 WGS84 EPSG:4326，提供自動、DMS、DM、臺灣 TM2、Web Mercator 與隱藏的臺電圖號選項；EPSG 值僅補足未宣告 CRS 的資料。
+- 頁面新增各 GIS 格式的用途、檢核與套圖說明，並補上搜尋引擎 description。
