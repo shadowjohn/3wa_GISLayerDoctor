@@ -3,7 +3,7 @@
 選擇資料類型 → 多檔選取／拖拉／貼上 → 分類清單 → 開始解析 → metadata 與屬性預覽。
 沿用網站 PHP 共用版型與 jQuery，使用本機 Bootstrap 5，不需 npm 建置。
 
-- 支援分類 Shapefile（ZIP 或同名配套檔）、DXF、KML/KMZ、GeoJSON、GPX、GeoTIFF。
+- 支援分類 Shapefile（ZIP 或同名配套檔）、SpatiaLite（SQLite）、DXF、KML/KMZ、GeoJSON、GPX、GeoTIFF。
 - 可分批追加；相同檔名、大小與修改時間視為重複。切換類型或清空會移除目前清單。
 - Shapefile 依不分大小寫的同名檔分組，檢查 SHP/SHX/DBF，提示 PRJ 缺漏及配套重複。
 - accept 只作選檔提示；拖拉、貼上與選檔共用分類流程，類型不符仍列出提示。
@@ -39,6 +39,7 @@ node tests/layer-normalizer.test.cjs
 node tests/dbf-encoding.test.cjs
 node tests/formats.test.cjs
 node tests/coordinate-info.test.cjs
+node tests/spatialite-geometry.test.cjs
 ```
 瀏覽器檢查：各類型 accept、分批加入 SHP 配套、重複檔、拖拉／貼上、清空、
 WMTS 合法／非法網址、惡意檔名純文字顯示及手機寬度。
@@ -58,6 +59,7 @@ head.php 的 jquery-form flag 載入 jquery.form.js，用於 AJAX 表單送出�
 | GPX | 航點、路線、軌跡與屬性 |
 | DXF | 文字 DXF 的版本、單位代碼、實體類型與數量、圖層／文字等實體預覽；支援 POINT、LINE、LWPOLYLINE/POLYLINE（含 bulge）、CIRCLE/ARC 與 BLOCK/INSERT 展開。二進位 DXF、文字、HATCH、SPLINE 尚不支援圖台預覽 |
 | GeoTIFF | 第一個 IFD 的尺寸、波段、CRS、NoData、範圍及左上第一波段最多 5 個像素；超過 1600 萬像素僅顯示 metadata |
+| SpatiaLite | 讀取標準 `geometry_columns` 註冊圖層、geometry BLOB、屬性、SRID 與範圍；支援 XY／Z／M／ZM、壓縮線面與 v5 TinyPoint。常用 EPSG:4326、3857、3825–3828 可直接套圖 |
 | WMTS | GetCapabilities 圖層識別碼、格式、樣式與 TileMatrixSet；保留服務提供的 capabilities URL，有 KVP service/request 參數時補正為 GetCapabilities |
 
 每批檔案 100 MB、Worker 30 秒超時，可取消；KMZ 解壓 KML 合計上限 100 MB、最多 2000 個項目。
@@ -66,14 +68,15 @@ WMTS 回應上限 5 MB，XML 拒絕 DTD/ENTITY。其他檔案逐一解析，單�
 單位與 CRS 僅顯示來源資訊，不擅自假設 CAD 或 TIFF 是經緯度。
 
 ## 解析器來源
-沿用站內 JSZip 3.10.1 與 DxfParser，新增固定版本 togeojson 7.1.2、xmldom 0.9.12、geotiff 3.0.5。
+沿用站內 JSZip 3.10.1 與 DxfParser，新增固定版本 togeojson 7.1.2、xmldom 0.9.12、geotiff 3.0.5、sql.js 1.14.1。
 來源：[togeojson](https://github.com/placemark/togeojson)、[xmldom](https://github.com/xmldom/xmldom)、
-[GeoTIFF.js](https://geotiffjs.github.io/geotiff.js/)、[DxfParser](https://github.com/gdsestimating/dxf-parser)。
+[GeoTIFF.js](https://geotiffjs.github.io/geotiff.js/)、[DxfParser](https://github.com/gdsestimating/dxf-parser)、[sql.js](https://github.com/sql-js/sql.js)。
 本機 bundle、授權與可重建的 lockfile 位於 js/vendor；部署不需要 npm。
 tests/fixtures/sample.tif 是合成的 2×2 TIFF（像素 1–4、EPSG:4326），不含使用者上傳資料。
 
 ## 圖台
 使用站內 easymap7117 公開 addItem/removeItem 生命週期，解析後顯示向量、基本 DXF 幾何與 TIFF 灰階預覽。
+GeometryCollection 以半透明藍綠填色與深色邊線顯示，保留底圖可讀性。
 WMTS 圖層解析成功後自動勾選並由 SDK 依 capabilities 載入圖磚。
 支援圖層開關、套圖後自動縮放至資料、點選向量屬性（純文字，最多 40 欄，每格 1000 字）。
 已知 CRS 使用來源宣告；缺少來源 CRS 的資料暫不套圖，仍顯示完整解析資訊與座標診斷。

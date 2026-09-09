@@ -14,7 +14,7 @@ self.onmessage = async ({ data }) => {
         return layers;
       }
       for (const layer of layers) {
-        if (!layer.mapData || layer.mapData.kind === 'wmts' || layer.mapData.crs) continue;
+        if (!layer.mapData || layer.mapData.kind === 'wmts' || layer.mapData.crs || layer.mapData.sourceCRSDeclared) continue;
         layer.mapData.crs = sourceCRS;
         layer.coordinateLabel = (layer.coordinateLabel || '解析座標') + '（使用者指定 ' + sourceCRS + '）';
         layer.warnings.push('圖台使用者指定的來源座標系統：' + sourceCRS + '。');
@@ -30,7 +30,20 @@ self.onmessage = async ({ data }) => {
       const result = await self.parseShapefiles(files, encoding);
       result.layers = applySourceCRS(result.layers); self.postMessage(result); return;
     }
-    if (!['geojson', 'kml', 'gpx', 'dxf', 'geotiff', 'wmts'].includes(type)) throw new Error('不支援的資料類型');
+    if (!['geojson', 'kml', 'gpx', 'dxf', 'geotiff', 'spatialite', 'wmts'].includes(type)) throw new Error('不支援的資料類型');
+    if (type === 'spatialite') {
+      importScripts('../vendor/sql-wasm.js?v=' + encodeURIComponent(version));
+      local(['../parsers/spatialite.js']);
+      const layers = [], errors = [];
+      for (const [index, file] of files.entries()) {
+        try {
+          progress(15 + Math.round(index / files.length * 75), '解析 ' + file.name + '（' + (index + 1) + '／' + files.length + '）…');
+          layers.push(...await self.parseSpatiaLite(file));
+        } catch (error) { errors.push(file.name + '：' + error.message); }
+      }
+      progress(95, '整理解析結果…');
+      self.postMessage({ layers: applySourceCRS(layers), errors }); return;
+    }
     local(['../vendor/gis-formats.js', '../parsers/common.js', '../parsers/geojson.js', '../parsers/' + type + '.js']);
     if (type === 'kml') importScripts('/inc/javascript/jszip/jszip3.min.js');
     if (type === 'dxf') importScripts('/inc/javascript/shapefilejs/dxfparser.min.js');
