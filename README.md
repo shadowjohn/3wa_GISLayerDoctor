@@ -3,7 +3,7 @@
 選擇資料類型 → 多檔選取／拖拉／貼上 → 分類清單 → 開始解析 → metadata 與屬性預覽。
 沿用網站 PHP 共用版型與 jQuery，使用本機 Bootstrap 5，不需 npm 建置。
 
-- 支援分類 Shapefile（ZIP 或同名配套檔）、SpatiaLite（SQLite）、DXF、KML/KMZ、GeoJSON、GPX、GeoTIFF。
+- 支援分類 Shapefile（ZIP 或同名配套檔）、SpatiaLite（SQLite）、XML、DXF、KML/KMZ、GeoJSON、GPX、GeoTIFF。
 - 可分批追加；相同檔名、大小與修改時間視為重複。切換類型或清空會移除目前清單。
 - Shapefile 依不分大小寫的同名檔分組，檢查 SHP/SHX/DBF，提示 PRJ 缺漏及配套重複。
 - accept 只作選檔提示；拖拉、貼上與選檔共用分類流程，類型不符仍列出提示。
@@ -23,7 +23,7 @@ ZIP 大小預檢依 JSZip 的 _data.uncompressedSize；升級 JSZip 需重驗 ZI
 有 PRJ 時轉為 WGS84；缺少 PRJ 時明確標示原始座標未確認。DBF 缺漏亦提示。
 DBF 編碼：手動設定優先，其次 .cpg；無 .cpg 時抽樣最多 256 筆文字欄位，嚴格檢查 UTF-8，再檢查 Big5。
 自動判斷屬推測：純 ASCII、雙方皆有效或混合編碼不能保證辨識，介面會提供判斷來源與手動切換。
-「資料來源座標系統」只在 Shapefile、DXF、GeoJSON、GPX、GeoTIFF 顯示，預設為 WGS84 EPSG:4326，可改選自動、DMS、DM、EPSG:3825、3826、3827、3828、3857。EPSG 手動值只補足未宣告 CRS 的資料，例如缺 PRJ 的 SHP 或 DXF；已有可靠來源宣告的資料維持自動判讀。DMS、DM 與臺電圖號文字座標尚無可安全通用的轉換規則。
+「資料來源座標系統」在 Shapefile、SpatiaLite、DXF、GeoJSON、GPX、GeoTIFF、XML 顯示，預設為 WGS84 EPSG:4326；XML 則預設為自動，以免把 X/Y 誤當經緯度。可改選自動、DMS、DM、EPSG:3825、3826、3827、3828、3857。EPSG 手動值只補足未宣告 CRS 的資料，例如缺 PRJ 的 SHP、DXF 或 XML X/Y；已有可靠來源宣告的資料維持自動判讀。DMS、DM 與臺電圖號文字座標尚無可安全通用的轉換規則。
 屬性預覽採不斷行欄位、橫向捲動與固定表頭，避免大量欄位擠成直排。
 加入檔案、切換類型或清空會終止舊工作並清除舊結果。
 
@@ -60,6 +60,7 @@ head.php 的 jquery-form flag 載入 jquery.form.js，用於 AJAX 表單送出�
 | DXF | 文字 DXF 的版本、單位代碼、實體類型與數量、圖層／文字等實體預覽；支援 POINT、LINE、LWPOLYLINE/POLYLINE（含 bulge）、CIRCLE/ARC 與 BLOCK/INSERT 展開。二進位 DXF、文字、HATCH、SPLINE 尚不支援圖台預覽 |
 | GeoTIFF | 第一個 IFD 的尺寸、波段、CRS、NoData、範圍及左上第一波段最多 5 個像素；超過 1600 萬像素僅顯示 metadata |
 | SpatiaLite | 讀取標準 `geometry_columns` 註冊圖層、geometry BLOB、屬性、SRID 與範圍；支援 XY／Z／M／ZM、壓縮線面與 v5 TinyPoint。常用 EPSG:4326、3857、3825–3828 可直接套圖 |
+| XML | 優先讀取 `cwaopendata` 的 `Station`、`GeoInfo` 與 WGS84 `Coordinates`；其他 XML 會取重複的資料標籤，辨識 `longitude/lon/long/lng`、`latitude/lat/latgitude`、經度／緯度或 X/Y。經緯度會提示為推定 WGS84；X/Y 不猜 CRS，需手動指定才套圖 |
 | WMTS | GetCapabilities 圖層識別碼、格式、樣式與 TileMatrixSet；保留服務提供的 capabilities URL，有 KVP service/request 參數時補正為 GetCapabilities |
 
 每批檔案 100 MB、Worker 30 秒超時，可取消；KMZ 解壓 KML 合計上限 100 MB、最多 2000 個項目。

@@ -6,7 +6,7 @@ const { TextDecoder, TextEncoder } = require('node:util');
 const root = path.resolve(__dirname, '..');
 global.self = globalThis;
 for (const file of ['vendor/gis-formats.js', 'layer-normalizer.js', 'parsers/common.js', 'parsers/geojson.js',
-  'parsers/kml.js', 'parsers/gpx.js', 'parsers/dxf.js', 'parsers/geotiff.js', 'parsers/wmts.js']) {
+  'parsers/kml.js', 'parsers/gpx.js', 'parsers/dxf.js', 'parsers/geotiff.js', 'parsers/xml.js', 'parsers/wmts.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(root, 'js', file), 'utf8'), {filename:file});
 }
 vm.runInThisContext(fs.readFileSync('/var/www/html/inc/javascript/jszip/jszip3.min.js','utf8'));
@@ -14,6 +14,10 @@ vm.runInThisContext(fs.readFileSync('/var/www/html/inc/javascript/shapefilejs/dx
 const file = (name, data) => Object.assign(new Blob([data]), { name });
 const kml = '<kml xmlns="http://www.opengis.net/kml/2.2"><Placemark><name>中文</name><Point><coordinates>121,25</coordinates></Point></Placemark></kml>';
 const gpx = '<gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><wpt lat="25" lon="121"><name>中文</name></wpt></gpx>';
+const cwa = '<cwaopendata xmlns="urn:cwa:gov:tw:cwacommon:0.1"><dataid>O-A0002-001</dataid><sent>2026-09-09T12:20:00+08:00</sent><dataset><Station><StationName>測試站</StationName><StationId>TEST</StationId><ObsTime><DateTime>2026-09-09T12:20:00+08:00</DateTime></ObsTime><GeoInfo><Coordinates><CoordinateName>TWD67</CoordinateName><StationLatitude>24</StationLatitude><StationLongitude>120</StationLongitude></Coordinates><Coordinates><CoordinateName>WGS84</CoordinateName><StationLatitude>25</StationLatitude><StationLongitude>121</StationLongitude></Coordinates></GeoInfo><RainfallElement><Now><Precipitation>0.5</Precipitation></Now></RainfallElement></Station></dataset></cwaopendata>';
+const genericXML = '<data><row><name>甲</name><longitude>121.5</longitude><latitude>25.1</latitude></row><row><name>乙</name><longitude>121.6</longitude><latitude>25.2</latitude></row></data>';
+const genericXY = '<data><row><name>甲</name><X>300000</X><Y>2700000</Y></row><row><name>乙</name><X>301000</X><Y>2701000</Y></row></data>';
+const genericTable = '<data><row><name>甲</name></row><row><name>乙</name></row></data>';
 const dxf = '0\nSECTION\n2\nBLOCKS\n0\nBLOCK\n2\nARC_BLOCK\n10\n0\n20\n0\n0\nLWPOLYLINE\n90\n2\n10\n0\n20\n0\n42\n1\n10\n10\n20\n0\n0\nENDBLK\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n0\nINSERT\n2\nARC_BLOCK\n10\n120\n20\n24\n41\n2\n42\n2\n50\n90\n70\n2\n71\n2\n44\n20\n45\n30\n0\nENDSEC\n0\nEOF\n'.replaceAll('\\n','\n');
 (async () => {
  const result = parseGeoJSON({type:'Feature',geometry:{type:'Point',coordinates:[121,25]},properties:{name:'<img onerror=1>'}},'point',[]);
@@ -21,6 +25,7 @@ const dxf = '0\nSECTION\n2\nBLOCKS\n0\nBLOCK\n2\nARC_BLOCK\n10\n0\n20\n0\n0\nLWP
  assert.throws(()=>parseGeoJSON({type:'Point',coordinates:['bad',25]},'bad'));
  assert.throws(()=>FormatHelpers.xml('<!DOCTYPE kml><kml/>','kml'));
  assert.throws(()=>FormatHelpers.xml('<kml><Placemark></kml>','kml'));
+ assert.equal(FormatHelpers.child({},'missing'),'');
  assert.equal((await parseKML(file('test.kml',kml),'auto'))[0].count,1);
  const damaged = (await parseKML(file('damaged.kml',kml.replace('中文','圖層�')),'auto'))[0];
  assert.equal(damaged.count,1);
@@ -36,6 +41,22 @@ const dxf = '0\nSECTION\n2\nBLOCKS\n0\nBLOCK\n2\nARC_BLOCK\n10\n0\n20\n0\n0\nLWP
  assert.equal((await parseKML(file('test.kmz',await zip.generateAsync({type:'uint8array'})),'auto'))[0].count,1);
  assert.equal((await parseGPX(file('test.gpx',gpx),'auto')).count,1);
  global.includeMap = true;
+ const parsedXML = await parseOpenDataXML(file('stations.xml',cwa),'auto');
+ assert.deepEqual(parsedXML.bounds,[121,25,121,25]);
+ assert.equal(parsedXML.mapData.crs,'EPSG:4326');
+ assert.equal(parsedXML.preview[0][0],'測試站');
+ assert.match(parsedXML.sourceCRS,/WGS84/);
+ await assert.rejects(() => parseOpenDataXML(file('other.xml','<root/>'),'auto'),/重複標籤/);
+ const parsedGeneric = await parseOpenDataXML(file('generic.xml',genericXML),'auto');
+ assert.deepEqual(parsedGeneric.bounds,[121.5,25.1,121.6,25.2]);
+ assert.equal(parsedGeneric.mapData.crs,'EPSG:4326');
+ assert.match(parsedGeneric.details[0],/<row>/);
+ const parsedXY = await parseOpenDataXML(file('xy.xml',genericXY),'auto');
+ assert.equal(parsedXY.mapData.crs,null);
+ assert.match(parsedXY.warnings.at(-1),/指定資料來源座標系統/);
+ const parsedTable = await parseOpenDataXML(file('table.xml',genericTable),'auto');
+ assert.equal(parsedTable.mapData,null);
+ assert.match(parsedTable.warnings.at(-1),/僅顯示屬性預覽/);
  const parsedDxf = await parseDXF(file('test.dxf',dxf),'auto');
  assert.equal(parsedDxf.count,1);
  assert.equal(parsedDxf.mapData.collection.features.length,4);

@@ -15,5 +15,6 @@ assert.equal(classify([file('<img onerror=alert(1)>.kml')], 'kml').rows[0].file.
 assert.deepEqual(classify([file('a.shp'), file('A.SHP')], 'shapefile').groups[0].duplicates, ['shp']);
 assert.equal(classify([file('toString')], 'shapefile').rows[0].type, 'unknown');
 assert.equal(classify([file('layer.sqlite')], 'spatialite').rows[0].status, '待解析');
+assert.equal(classify([file('rain.xml')], 'xml').rows[0].status, '待解析');
 assert.equal(classify([], 'wmts').rows.length, 0);
 console.log('FileSetClassifier checks passed');

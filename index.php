@@ -7,8 +7,8 @@
     return hash_file('sha256', $file);
   }, $asset_files))), 0, 16);
   $include_mode="bootstrap5|easymap7117";
-  $HEAD_TITLE=__('GIS 資料健檢機｜Shapefile、SpatiaLite、DXF、KML、GeoJSON 圖層檢核 - 3WA問題解決專家工作室');
-  $HEAD_DESCRIPTION=__('支援 Shapefile、SpatiaLite、DXF、KML、GeoJSON、GPX、GeoTIFF、WMTS 的瀏覽器端 GIS 資料解析、座標檢核、屬性預覽與圖台套疊。');
+  $HEAD_TITLE=__('GIS 資料健檢機｜Shapefile、SpatiaLite、XML、DXF、KML、GeoJSON 圖層檢核 - 3WA問題解決專家工作室');
+  $HEAD_DESCRIPTION=__('支援 Shapefile、SpatiaLite、XML、DXF、KML、GeoJSON、GPX、GeoTIFF、WMTS 的瀏覽器端 GIS 資料解析、座標檢核、屬性預覽與圖台套疊。');
   require "{$base_dir}/html.php";
   require "{$base_dir}/head.php";
 ?>
@@ -30,6 +30,7 @@
       <option value="">請選擇資料類型</option>
       <option value="shapefile">Shapefile</option>
       <option value="spatialite">SpatiaLite</option>
+      <option value="xml">XML（開放資料）</option>
       <option value="dxf">DXF</option>
       <option value="kml">KML</option>
       <option value="geojson">GeoJSON</option>
@@ -122,6 +123,7 @@
     <div class="format-guide-grid">
       <article><h3>Shapefile（SHP）</h3><p>可加入 ZIP，或分別加入同名的 SHP、SHX、DBF、PRJ、CPG 檔案。檢查配套是否齊全、DBF 文字編碼、圖徵數量、座標範圍與屬性欄位。</p></article>
       <article><h3>SpatiaLite（SQLite）</h3><p>讀取 geometry_columns 登錄的圖層與 geometry BLOB，整理圖徵、屬性、SRID 與範圍；常用 EPSG 座標系統可直接套疊圖台。</p></article>
+      <article><h3>XML（開放資料）</h3><p>優先讀取 CWA cwaopendata 站點；其他 XML 會尋找重複資料列與常見經緯度欄位。僅有 X/Y 時保留原始座標，需指定 CRS 才套圖。</p></article>
       <article><h3>DXF</h3><p>解析文字 DXF 的圖層、實體與單位資訊，支援點、線、多段線、bulge 圓弧、CIRCLE、ARC 與 BLOCK／INSERT 展開，適合檢視 CAD 圖資範圍。</p></article>
       <article><h3>KML／KMZ</h3><p>讀取 KML 地標、路線與面資料；KMZ 會解開其中的 KML。檢查經緯度範圍與屬性，座標正常時可直接套疊圖台。</p></article>
       <article><h3>GeoJSON</h3><p>支援 FeatureCollection、Feature 與各種標準幾何。檢查座標結構、幾何類型、Extent 與屬性，適合交換與 API 下載的 GIS 資料。</p></article>

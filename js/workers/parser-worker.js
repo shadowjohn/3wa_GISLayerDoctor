@@ -30,7 +30,7 @@ self.onmessage = async ({ data }) => {
       const result = await self.parseShapefiles(files, encoding);
       result.layers = applySourceCRS(result.layers); self.postMessage(result); return;
     }
-    if (!['geojson', 'kml', 'gpx', 'dxf', 'geotiff', 'spatialite', 'wmts'].includes(type)) throw new Error('不支援的資料類型');
+    if (!['geojson', 'kml', 'gpx', 'dxf', 'geotiff', 'spatialite', 'xml', 'wmts'].includes(type)) throw new Error('不支援的資料類型');
     if (type === 'spatialite') {
       importScripts('../vendor/sql-wasm.js?v=' + encodeURIComponent(version));
       local(['../parsers/spatialite.js']);
@@ -49,7 +49,7 @@ self.onmessage = async ({ data }) => {
     if (type === 'dxf') importScripts('/inc/javascript/shapefilejs/dxfparser.min.js');
     if (type === 'wmts') { progress(35, '讀取 WMTS GetCapabilities…'); self.postMessage({ layers: await parseWMTS(url), errors: [] }); return; }
     const layers = [], errors = [];
-    const parsers = { kml: self.parseKML, gpx: self.parseGPX, dxf: self.parseDXF, geotiff: self.parseGeoTIFF };
+    const parsers = { kml: self.parseKML, gpx: self.parseGPX, dxf: self.parseDXF, geotiff: self.parseGeoTIFF, xml: self.parseOpenDataXML };
     for (const [index, file] of files.entries()) {
       try {
         progress(15 + Math.round(index / files.length * 75), '解析 ' + file.name + '（' + (index + 1) + '／' + files.length + '）…');

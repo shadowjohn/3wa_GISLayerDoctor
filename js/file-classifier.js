@@ -3,7 +3,7 @@
   'use strict';
   const formats = {
     shapefile: ['zip', 'shp', 'shx', 'dbf', 'prj', 'cpg', 'sbn', 'sbx', 'qix'],
-    dxf: ['dxf'], kml: ['kml', 'kmz'], geojson: ['geojson', 'json'],
+    dxf: ['dxf'], kml: ['kml', 'kmz'], geojson: ['geojson', 'json'], xml: ['xml'],
     gpx: ['gpx'], geotiff: ['tif', 'tiff'], spatialite: ['sqlite', 'sqlite3', 'db', 'db3']
   };
   function classify(files, selected) {
