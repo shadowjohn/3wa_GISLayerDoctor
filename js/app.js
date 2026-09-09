@@ -88,7 +88,8 @@
     input.value = '';
     const isWmts = selector.value === 'wmts';
     document.querySelector('.encoding-control').hidden = isWmts || ['geotiff', 'spatialite'].includes(selector.value);
-    document.querySelector('.source-crs-control').hidden = !['shapefile', 'dxf', 'geojson', 'gpx', 'geotiff', 'spatialite'].includes(selector.value);
+    document.querySelector('.source-crs-control').hidden = !['shapefile', 'dxf', 'geojson', 'gpx', 'geotiff', 'spatialite', 'xml'].includes(selector.value);
+    if (selector.value === 'xml') $id('source-crs').value = 'auto';
     $id('source-panel').hidden = !selector.value;
     $("input[reqc='upfiles']").prop('type', isWmts || !selector.value ? 'text' : 'file');
     input.multiple = !isWmts;

@@ -16,7 +16,7 @@ self.FormatHelpers = {
         throw new Error('XML 格式錯誤：' + message);
       }
     }).parseFromString(text, 'text/xml');
-    if (doc.documentElement?.localName !== root) throw new Error('預期 ' + root + ' XML 文件');
+    if (root && doc.documentElement?.localName !== root) throw new Error('預期 ' + root + ' XML 文件');
     return doc;
   },
   table(name, label, rows, warnings = [], details = []) {
@@ -27,6 +27,7 @@ self.FormatHelpers = {
   },
   nodes(node, name) { return Array.from(node.getElementsByTagNameNS('*', name)); },
   child(node, name) {
+    if (!node?.childNodes) return '';
     return Array.from(node.childNodes).find(child => child.localName === name)?.textContent.trim() || '';
   }
 };
