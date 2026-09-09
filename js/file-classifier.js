@@ -4,7 +4,7 @@
   const formats = {
     shapefile: ['zip', 'shp', 'shx', 'dbf', 'prj', 'cpg', 'sbn', 'sbx', 'qix'],
     dxf: ['dxf'], kml: ['kml', 'kmz'], geojson: ['geojson', 'json'],
-    gpx: ['gpx'], geotiff: ['tif', 'tiff']
+    gpx: ['gpx'], geotiff: ['tif', 'tiff'], spatialite: ['sqlite', 'sqlite3', 'db', 'db3']
   };
   function classify(files, selected) {
     const sets = new Map();

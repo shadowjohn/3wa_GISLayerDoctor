@@ -105,6 +105,11 @@
           const records = features.map(feature => ({ label: '', wkt: writer.writeFeature(feature) }));
           if (records.length) {
             const item = new dgWKT(records, 'EPSG:4326');
+            const geometryCollection = item.getStyle().GeometryCollection;
+            geometryCollection.getStroke().setColor('#0f5f73');
+            geometryCollection.getFill().setColor('rgba(14, 116, 144, 0.24)');
+            geometryCollection.getImage().getStroke().setColor('#0f5f73');
+            geometryCollection.getImage().getFill().setColor('rgba(14, 116, 144, 0.65)');
             item.setFeatureClick(record => { if (entry.checked) properties(source[record.data_index]?.properties); });
             entry.items.push(item); mount(entry, item); entry.rendered += records.length;
           }

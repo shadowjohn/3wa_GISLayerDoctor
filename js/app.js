@@ -87,8 +87,8 @@
     wmts = '';
     input.value = '';
     const isWmts = selector.value === 'wmts';
-    document.querySelector('.encoding-control').hidden = isWmts || selector.value === 'geotiff';
-    document.querySelector('.source-crs-control').hidden = !['shapefile', 'dxf', 'geojson', 'gpx', 'geotiff'].includes(selector.value);
+    document.querySelector('.encoding-control').hidden = isWmts || ['geotiff', 'spatialite'].includes(selector.value);
+    document.querySelector('.source-crs-control').hidden = !['shapefile', 'dxf', 'geojson', 'gpx', 'geotiff', 'spatialite'].includes(selector.value);
     $id('source-panel').hidden = !selector.value;
     $("input[reqc='upfiles']").prop('type', isWmts || !selector.value ? 'text' : 'file');
     input.multiple = !isWmts;
@@ -214,7 +214,7 @@
             text(panel, 'p', CoordinateInfo.describe(layer.sourceBounds || layer.bounds)?.hint || coordinateInfo.hint).className = 'note';
             if (layer.sourceCRS) {
               const details = document.createElement('details');
-              text(details, 'summary', '來源 CRS 宣告（PRJ／GeoKey／GeoJSON）');
+              text(details, 'summary', '來源 CRS 宣告／SRID');
               text(details, 'pre', layer.sourceCRS);
               panel.append(details);
             }
