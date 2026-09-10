@@ -8,7 +8,7 @@
 - Shapefile 依不分大小寫的同名檔分組，檢查 SHP/SHX/DBF，提示 PRJ 缺漏及配套重複。
 - accept 只作選檔提示；拖拉、貼上與選檔共用分類流程，類型不符仍列出提示。
 - 貼上需剪貼簿實際提供 File；純文字檔案路徑不會讀取本機檔案。資料夾請改選其中檔案。
-- WMTS 確認網址後，按開始解析才由瀏覽器 GET 讀取 GetCapabilities（不帶憑證），服務需允許 CORS；解析成功後會自動套疊圖磚。
+- WMTS／XYZ 圖磚網址確認後，按開始解析。GetCapabilities 會由瀏覽器 GET 讀取（不帶憑證）；既有 `.../z/x/y.png` 圖磚網址則直接轉為 XYZ 範本。服務需允許 CORS，解析成功後會自動套疊圖磚。
 - 加入檔案先分類；按「開始解析」才在 Worker 讀取／解壓，完全不作上傳或 localStorage 儲存。解析期間會顯示載入、逐檔解析與整理結果的進度。
 - 檔名與網址只以 textContent 顯示，不插入 HTML。副檔名分類不代表內容驗證。
 
@@ -61,10 +61,10 @@ head.php 的 jquery-form flag 載入 jquery.form.js，用於 AJAX 表單送出�
 | GeoTIFF | 第一個 IFD 的尺寸、波段、CRS、NoData、範圍及左上第一波段最多 5 個像素；超過 1600 萬像素僅顯示 metadata |
 | SpatiaLite | 讀取標準 `geometry_columns` 註冊圖層、geometry BLOB、屬性、SRID 與範圍；支援 XY／Z／M／ZM、壓縮線面與 v5 TinyPoint。常用 EPSG:4326、3857、3825–3828 可直接套圖 |
 | XML | 優先讀取 `cwaopendata` 的 `Station`、`GeoInfo` 與 WGS84 `Coordinates`；其他 XML 會取重複的資料標籤，辨識 `longitude/lon/long/lng`、`latitude/lat/latgitude`、經度／緯度或 X/Y。經緯度會提示為推定 WGS84；X/Y 不猜 CRS，需手動指定才套圖 |
-| WMTS | GetCapabilities 圖層識別碼、格式、樣式與 TileMatrixSet；保留服務提供的 capabilities URL，有 KVP service/request 參數時補正為 GetCapabilities |
+| WMTS / XYZ 圖磚 | GetCapabilities 圖層識別碼、格式、樣式與 TileMatrixSet；有 KVP service/request 參數時補正為 GetCapabilities。若網址尾端為數字 `z/x/y` 與 PNG、JPG、WEBP，直接轉為 XYZ 範本 |
 
 每批檔案 100 MB、Worker 30 秒超時，可取消；KMZ 解壓 KML 合計上限 100 MB、最多 2000 個項目。
-WMTS 回應上限 5 MB，XML 拒絕 DTD/ENTITY。其他檔案逐一解析，單檔錯誤不阻擋同批其他檔案。
+WMTS GetCapabilities 回應上限 5 MB，XML 拒絕 DTD/ENTITY。其他檔案逐一解析，單檔錯誤不阻擋同批其他檔案。
 文字檔自動嚴格嘗試 UTF-8，再嘗試 Big5；可手動切換。JSON 巢狀屬性以 JSON 文字預覽。
 單位與 CRS 僅顯示來源資訊，不擅自假設 CAD 或 TIFF 是經緯度。
 
@@ -78,7 +78,7 @@ tests/fixtures/sample.tif 是合成的 2×2 TIFF（像素 1–4、EPSG:4326）�
 ## 圖台
 使用站內 easymap7117 公開 addItem/removeItem 生命週期，解析後顯示向量、基本 DXF 幾何與 TIFF 灰階預覽。
 GeometryCollection 以半透明藍綠填色與深色邊線顯示，保留底圖可讀性。
-WMTS 圖層解析成功後自動勾選並由 SDK 依 capabilities 載入圖磚。
+WMTS／XYZ 圖磚解析成功後自動勾選；WMTS 依 capabilities 載入，XYZ 則直接以 URL 範本請求圖磚。
 支援圖層開關、套圖後自動縮放至資料、點選向量屬性（純文字，最多 40 欄，每格 1000 字）。
 已知 CRS 使用來源宣告；缺少來源 CRS 的資料暫不套圖，仍顯示完整解析資訊與座標診斷。
 缺少來源 CRS 時，可在左側文字編碼下方指定資料來源座標系統後重新解析，圖台才會依該值轉換。

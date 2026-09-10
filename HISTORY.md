@@ -16,6 +16,7 @@
 - 解析結果新增座標診斷：Extent、各軸範圍、外框中心、跨度、座標樣本及原始 SHP Extent／CRS 宣告；數值候選提示不自動套用。
 
 ## 2026-09-09
+- WMTS 輸入新增 z/x/y 單張圖磚網址辨識，將 PNG、JPG、WEBP 直接轉為 XYZ 範本並以 Easymap 圖層載入；既有 GetCapabilities 解析維持不變。
 - 新增 XML 解析：優先讀取 CWA `cwaopendata` 站點，其他 XML 以重複標籤當資料列並辨識常見經緯度或 X/Y 欄位；經緯度提示為推定 WGS84，X/Y 必須手動指定 CRS 才套圖。
 - 新增 SpatiaLite（SQLite）唯讀解析：讀取 geometry_columns、屬性、SRID 與 geometry BLOB，支援 XY／Z／M／ZM、壓縮線面、v5 TinyPoint；常用臺灣與網頁座標系統可套圖。
 - GeometryCollection 圖台改用半透明藍綠填色與深藍綠邊線，避免預設洋紅色遮蔽底圖。

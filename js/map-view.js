@@ -131,8 +131,10 @@
       const data = layer.mapData;
       if (!data) { messages.push(layer.name + '：目前沒有可顯示的幾何。'); continue; }
       try {
-        if (data.kind === 'wmts') {
-          const item = new dgSource('WMTS', { name: 'doctor-wmts-' + items.length, url: data.url, capabilitiesUrl: data.url, layer: data.layer, bg: false });
+        if (data.kind === 'wmts' || data.kind === 'xyz') {
+          const item = data.kind === 'wmts' ?
+            new dgSource('WMTS', { name: 'doctor-wmts-' + items.length, url: data.url, capabilitiesUrl: data.url, layer: data.layer, bg: false }) :
+            new dgSource('webtiles', { name: 'doctor-xyz-' + items.length, url: data.url, bg: false });
           const entry = { items: [item], mounted: new Set(), checked: true, extent: null, cancelled: false };
           mount(entry, item); items.push(entry); addLayerControl(entry, layer.name + ' · 已載入圖磚'); continue;
         }

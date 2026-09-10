@@ -8,7 +8,7 @@
   }, $asset_files))), 0, 16);
   $include_mode="bootstrap5|easymap7117";
   $HEAD_TITLE=__('GIS 資料健檢機｜Shapefile、SpatiaLite、XML、DXF、KML、GeoJSON 圖層檢核 - 3WA問題解決專家工作室');
-  $HEAD_DESCRIPTION=__('支援 Shapefile、SpatiaLite、XML、DXF、KML、GeoJSON、GPX、GeoTIFF、WMTS 的瀏覽器端 GIS 資料解析、座標檢核、屬性預覽與圖台套疊。');
+  $HEAD_DESCRIPTION=__('支援 Shapefile、SpatiaLite、XML、DXF、KML、GeoJSON、GPX、GeoTIFF、WMTS／XYZ 圖磚的瀏覽器端 GIS 資料解析、座標檢核、屬性預覽與圖台套疊。');
   require "{$base_dir}/html.php";
   require "{$base_dir}/head.php";
 ?>
@@ -36,7 +36,7 @@
       <option value="geojson">GeoJSON</option>
       <option value="gpx">GPX</option>
       <option value="geotiff">GeoTIFF</option>
-      <option value="wmts">WMTS</option>
+      <option value="wmts">WMTS／XYZ 圖磚</option>
     </select>
   </section>
   <section id="source-panel" hidden aria-labelledby="source-heading">
@@ -96,7 +96,7 @@
       <progress id="parse-progress-bar" max="100" value="0">0%</progress>
       <span id="parse-progress-text">準備解析…</span>
     </div>
-    <p id="parse-help" class="note">加入所選類型的資料後按「開始解析」。WMTS 將連線讀取服務資訊；檔案仍只在本機處理。</p>
+    <p id="parse-help" class="note">加入所選類型的資料後按「開始解析」。WMTS 會讀取服務資訊；直接圖磚網址會轉為 XYZ 範本，檔案仍只在本機處理。</p>
   </section>
   </div>
   <div class="results-column">
@@ -129,7 +129,7 @@
       <article><h3>GeoJSON</h3><p>支援 FeatureCollection、Feature 與各種標準幾何。檢查座標結構、幾何類型、Extent 與屬性，適合交換與 API 下載的 GIS 資料。</p></article>
       <article><h3>GPX</h3><p>解析航點、路線與軌跡，整理位置與屬性資訊，方便檢視 GPS 紀錄的空間範圍並套疊到圖台。</p></article>
       <article><h3>GeoTIFF</h3><p>讀取第一張影像的尺寸、波段、NoData、地理參考與範圍；可建立第一波段灰階預覽，協助確認遙測或網格資料的位置。</p></article>
-      <article><h3>WMTS</h3><p>輸入 GetCapabilities 網址後讀取服務圖層、格式與 TileMatrixSet。解析成功會自動載入圖磚，可與其他 GIS 向量資料套疊檢視。</p></article>
+      <article><h3>WMTS／XYZ 圖磚</h3><p>可輸入 GetCapabilities，或既有的 z/x/y 單張 PNG、JPG、WEBP 圖磚網址。後者會直接轉為 XYZ 範本並載入圖台。</p></article>
     </div>
   </section>
 </main>

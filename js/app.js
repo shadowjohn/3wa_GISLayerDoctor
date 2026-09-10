@@ -63,7 +63,7 @@
         (group.duplicates.length ? '；配套副檔名重複：' + group.duplicates.join('、') : '');
       $id('groups').append(li);
     }
-    $id('summary').textContent = wmts ? '1 筆 WMTS 來源' : files.length ?
+    $id('summary').textContent = wmts ? '1 筆 WMTS／圖磚來源' : files.length ?
       files.length + ' 個檔案，共 ' + size(files.reduce((sum, file) => sum + file.size, 0)) : '尚未加入資料。';
     $id('clear-files').disabled = !rows.length;
   }
@@ -95,9 +95,9 @@
     input.multiple = !isWmts;
     input.removeAttribute('accept');
     if (!isWmts && selector.value) input.accept = FileSetClassifier.formats[selector.value].map(ext => '.' + ext).join(',');
-    input.placeholder = isWmts ? 'https://example.com/wmts?SERVICE=WMTS&REQUEST=GetCapabilities' : '';
-    $id('source-label').textContent = isWmts ? 'WMTS 網址' : '選擇檔案（可多選）';
-    $id('source-help').textContent = isWmts ? '輸入 GetCapabilities 網址並按確定，再按開始解析。服務需允許 CORS。' : '接受：' + input.accept + '。切換資料類型會清空清單。';
+    input.placeholder = isWmts ? 'https://example.com/wmts?SERVICE=WMTS&REQUEST=GetCapabilities 或 https://tile.example.com/layer/{z}/{x}/{y}.png' : '';
+    $id('source-label').textContent = isWmts ? 'WMTS／圖磚網址' : '選擇檔案（可多選）';
+    $id('source-help').textContent = isWmts ? '輸入 GetCapabilities、z/x/y 單張圖磚，或 {z}/{x}/{y}、${z}/${x}/${y} 範本；服務需允許 CORS。' : '接受：' + input.accept + '。切換資料類型會清空清單。';
     $id('confirm-url').hidden = !isWmts;
     zone.hidden = isWmts;
     say('');
@@ -117,9 +117,9 @@
     try {
       const url = new URL(input.value.trim());
       if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error();
-      wmts = url.href;
+      wmts = input.value.trim();
       render();
-      say('WMTS 網址已收錄。');
+      say('WMTS／圖磚網址已收錄。');
     } catch {
       say('請輸入有效的 HTTP／HTTPS 網址，且不要包含帳號密碼。');
     }

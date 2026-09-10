@@ -22,7 +22,7 @@ self.onmessage = async ({ data }) => {
       return layers;
     };
     const progress = (value, message) => self.postMessage({ progress: value, message });
-    progress(5, '載入 ' + (type === 'wmts' ? 'WMTS 服務資訊' : '解析器') + '…');
+    progress(5, '載入 ' + (type === 'wmts' ? 'WMTS／圖磚服務資訊' : '解析器') + '…');
     if (type === 'shapefile') {
       importScripts('/inc/javascript/jszip/jszip3.min.js', '../vendor/shp-6.2.0.js');
       local(['../parsers/dbf-encoding.js', '../parsers/shapefile.js']);
@@ -47,7 +47,7 @@ self.onmessage = async ({ data }) => {
     local(['../vendor/gis-formats.js', '../parsers/common.js', '../parsers/geojson.js', '../parsers/' + type + '.js']);
     if (type === 'kml') importScripts('/inc/javascript/jszip/jszip3.min.js');
     if (type === 'dxf') importScripts('/inc/javascript/shapefilejs/dxfparser.min.js');
-    if (type === 'wmts') { progress(35, '讀取 WMTS GetCapabilities…'); self.postMessage({ layers: await parseWMTS(url), errors: [] }); return; }
+    if (type === 'wmts') { progress(35, '辨識圖磚網址或讀取 GetCapabilities…'); self.postMessage({ layers: await parseWMTS(url), errors: [] }); return; }
     const layers = [], errors = [];
     const parsers = { kml: self.parseKML, gpx: self.parseGPX, dxf: self.parseDXF, geotiff: self.parseGeoTIFF, xml: self.parseOpenDataXML };
     for (const [index, file] of files.entries()) {
